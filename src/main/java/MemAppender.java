@@ -3,8 +3,12 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +54,7 @@ public class MemAppender extends AppenderSkeleton {
     }
 
     public List<String> getEventStrings() {
-        return events.stream().map(LoggingEvent::getRenderedMessage).collect(Collectors.toList());
+        return events.stream().map(event -> "[" + new Date(event.getTimeStamp()) + "] " + event.getRenderedMessage()).collect(Collectors.toList());
     }
 
     public List<LoggingEvent> getCurrentLogs() {
@@ -61,9 +65,16 @@ public class MemAppender extends AppenderSkeleton {
         return deletedLogCounter;
     }
 
-    public void printLogs(){
-        List<String> logs = events.stream().map(LoggingEvent::getRenderedMessage).collect(Collectors.toList());
-        logs.forEach(System.out::println);
-        events.clear();
+    public void printLogs(String logFilePath) {
+        List<String> logs = getEventStrings();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFilePath, true))) {
+            for (String log : logs) {
+                writer.write(log);
+                writer.newLine();
+            }
+            events.clear();  // Clear logs after printing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

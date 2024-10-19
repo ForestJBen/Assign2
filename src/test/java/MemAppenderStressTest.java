@@ -29,7 +29,7 @@ public class MemAppenderStressTest {
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 100; i++) {
-            logger.info("Test log " + i);
+            logger.info("Linked List test log " + i);
         }
 
         long endTime = System.currentTimeMillis();
@@ -42,7 +42,7 @@ public class MemAppenderStressTest {
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 100; i++) {
-            logger.info("Test log " + i);
+            logger.info("Array test log " + i);
         }
 
         long endTime = System.currentTimeMillis();

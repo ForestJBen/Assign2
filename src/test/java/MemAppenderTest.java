@@ -4,8 +4,7 @@ import org.apache.log4j.PatternLayout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,25 +58,36 @@ public class MemAppenderTest {
 
     @Test
     public void testPrintLogs() {
-        // Capture the output of printLogs
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(outputStream));
+        // Set the log file path
+        String logFilePath = "logs/test.log";
 
         // Log some messages
         logger.info("Log message 1");
         logger.error("Log message 2");
 
-        // Print logs
-        memAppender.printLogs();
+        // Print logs to the file
+        memAppender.printLogs(logFilePath);
 
-        // Restore original System.out
-        System.setOut(originalOut);
+        // Read and check the log file content
+        try (BufferedReader reader = new BufferedReader(new FileReader(logFilePath))) {
+            String line;
+            boolean log1Found = false;
+            boolean log2Found = false;
 
-        // Check the output
-        String output = outputStream.toString();
-        assertTrue(output.contains("Log message 1"));
-        assertTrue(output.contains("Log message 2"));
-        assertTrue(memAppender.getCurrentLogs().isEmpty());  // Ensure logs are cleared after printing
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("Log message 1")) {
+                    log1Found = true;
+                }
+                if (line.contains("Log message 2")) {
+                    log2Found = true;
+                }
+            }
+
+            assertTrue(log1Found);
+            assertTrue(log2Found);
+            assertTrue(memAppender.getCurrentLogs().isEmpty());  // Ensure logs are cleared after printing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
